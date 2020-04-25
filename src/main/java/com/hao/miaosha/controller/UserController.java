@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Random;
+
 /**
  * @author MuggleLee
  * @date 2020/4/25
@@ -29,5 +31,12 @@ public class UserController {
         UserVo userVo = new UserVo();
         BeanUtils.copyProperties(userModel, userVo);
         return CommonResonse.create(userVo);
+    }
+
+    public CommonResonse getOtp(@RequestParam("telphone")String telphone){
+        Random random = new Random();
+        int randomInt = random.nextInt(99999);
+        randomInt += 10000;
+
     }
 }
