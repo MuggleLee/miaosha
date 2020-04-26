@@ -1,6 +1,6 @@
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://120.78.142.13:12345/miaosha?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false
     username: root
     password: qwedsazxc123456
@@ -8,3 +8,14 @@ spring:
       minimum-idle: 5
       maximum-pool-size: 20
       connection-test-query: SELECT 1
+  redis:
+    host: 120.78.142.13
+    port: 8089
+    password: qwedsazxc123456
+    timeout: 10s
+    lettuce:
+      pool:
+        min-idle: 0
+        max-idle: 8
+        max-active: 8
+        max-wait: -1ms

@@ -13,6 +13,12 @@ public class MyException extends Exception implements CommonError{
         this.commonError = commonError;
     }
 
+    public MyException(CommonError commonError,String errMsg){
+        super();
+        this.commonError = commonError;
+        this.setErrMsg(errMsg);
+    }
+
     @Override
     public int getErrCode() {
         return this.commonError.getErrCode();
