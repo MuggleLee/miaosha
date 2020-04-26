@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 /**
  * @author MuggleLee
@@ -78,7 +79,10 @@ public class UserServiceImpl implements UserService {
                 name(userBO.getName()).
                 telphone(userBO.getTelphone()).
                 registerMode(userBO.getRegisterMode()).
-                thirdPartyId(userBO.getThirdPartyId()).build();
+                thirdPartyId(userBO.getThirdPartyId())
+                .addTime(new Date())
+                .updateTime(new Date())
+                .build();
         userMapper.insert(userDO);
 
         // 存进user_password表

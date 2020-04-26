@@ -2,6 +2,7 @@ package com.hao.miaosha.service;
 
 import com.hao.miaosha.bo.ItemBo;
 import com.hao.miaosha.exception.MyException;
+import com.hao.miaosha.vo.ItemVO;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public interface ItemService {
     // 创建商品
-    ItemBo createItem(ItemBo itemBo) throws MyException;
+    ItemVO createItem(ItemBo itemBo) throws MyException;
 
     // 返回商品列表
     List<ItemBo> itemList();

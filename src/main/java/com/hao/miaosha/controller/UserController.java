@@ -1,7 +1,7 @@
 package com.hao.miaosha.controller;
 
 import com.hao.miaosha.units.MD5Unit;
-import com.hao.miaosha.vo.UserVo;
+import com.hao.miaosha.vo.UserVO;
 import com.hao.miaosha.exception.EmError;
 import com.hao.miaosha.exception.MyException;
 import com.hao.miaosha.response.CommonResonse;
@@ -9,7 +9,6 @@ import com.hao.miaosha.service.UserService;
 import com.hao.miaosha.bo.UserBO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.BoundGeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,7 +49,7 @@ public class UserController {
     @ResponseBody
     public CommonResonse getByUser(@RequestParam(name = "userId") int userId) throws MyException {
         UserBO userBO = userService.getByUserId(userId);
-        UserVo userVo = new UserVo();
+        UserVO userVo = new UserVO();
         BeanUtils.copyProperties(userBO, userVo);
         return CommonResonse.create(userVo);
     }
