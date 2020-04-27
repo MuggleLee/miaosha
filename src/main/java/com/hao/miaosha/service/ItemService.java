@@ -1,6 +1,6 @@
 package com.hao.miaosha.service;
 
-import com.hao.miaosha.bo.ItemBo;
+import com.hao.miaosha.bo.ItemBO;
 import com.hao.miaosha.exception.MyException;
 import com.hao.miaosha.vo.ItemVO;
 
@@ -12,11 +12,14 @@ import java.util.List;
  */
 public interface ItemService {
     // 创建商品
-    ItemVO createItem(ItemBo itemBo) throws MyException;
+    ItemVO createItem(ItemBO itemBo) throws MyException;
 
     // 返回商品列表
-    List<ItemBo> itemList();
+    List<ItemVO> itemList();
 
     // 返回商品详情
-    ItemBo getItemById(int id);
+    ItemVO getItemById(Integer id);
+
+    // 减库存
+    boolean decreaseStock(Integer itemId,Integer amount);
 }

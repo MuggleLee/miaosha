@@ -1,5 +1,6 @@
 package com.hao.miaosha.controller;
 
+import com.hao.miaosha.config.CommonConfig;
 import com.hao.miaosha.units.MD5Unit;
 import com.hao.miaosha.vo.UserVO;
 import com.hao.miaosha.exception.EmError;
@@ -27,8 +28,6 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/user")
 @CrossOrigin(allowCredentials = "true", allowedHeaders = "*")
 public class UserController {
-
-    public static final String CONTENT_TYPE_FORMED="application/x-www-form-urlencoded";
 
     @Autowired
     private UserService userService;
@@ -88,7 +87,7 @@ public class UserController {
      * @throws UnsupportedEncodingException
      * @throws NoSuchAlgorithmException
      */
-    @RequestMapping(value = "/register",method = RequestMethod.POST,consumes={CONTENT_TYPE_FORMED})
+    @RequestMapping(value = "/register",method = RequestMethod.POST,consumes={CommonConfig.CONTENT_TYPE_FORMED})
     @ResponseBody
     public CommonResonse register(@RequestParam("name") String name,
                                   @RequestParam("gender") byte gender,
@@ -113,7 +112,7 @@ public class UserController {
         return CommonResonse.create(null);
     }
 
-    @RequestMapping(value = "/login",method = RequestMethod.POST,consumes={CONTENT_TYPE_FORMED})
+    @RequestMapping(value = "/login",method = RequestMethod.POST,consumes={CommonConfig.CONTENT_TYPE_FORMED})
     @ResponseBody
     public CommonResonse login(@RequestParam("telphone") String telphone,
                                   @RequestParam("password") String password) throws UnsupportedEncodingException, NoSuchAlgorithmException, MyException {

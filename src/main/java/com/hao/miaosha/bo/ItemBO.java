@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemBo {
+public class ItemBO {
     private Integer id;
 
     //商品名称

@@ -1,7 +1,7 @@
 package com.hao.miaosha.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.hao.miaosha.bo.ItemBo;
+import com.hao.miaosha.bo.ItemBO;
 import com.hao.miaosha.exception.MyException;
 import com.hao.miaosha.mapper.ItemMapper;
 import com.hao.miaosha.mapper.ItemStockMapper;
@@ -9,15 +9,13 @@ import com.hao.miaosha.po.ItemPO;
 import com.hao.miaosha.po.ItemStockPO;
 import com.hao.miaosha.service.ItemService;
 import com.hao.miaosha.validator.ValidatorImpl;
-import com.hao.miaosha.validator.ValidatorResult;
 import com.hao.miaosha.vo.ItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Muggle Lee
@@ -37,13 +35,14 @@ public class ItemServiceImpl implements ItemService {
 
     /**
      * 添加商品
+     *
      * @param itemBo
      * @return 返回VO层的商品信息
      * @throws MyException
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public ItemVO createItem(ItemBo itemBo) throws MyException {
+    public ItemVO createItem(ItemBO itemBo) throws MyException {
         // 校验参数
         validator.validator(itemBo);
 
@@ -52,7 +51,7 @@ public class ItemServiceImpl implements ItemService {
                 .imgUrl(itemBo.getImgUrl())
                 .title(itemBo.getTitle())
                 .price(itemBo.getPrice().doubleValue())
-                .sales(itemBo.getSales())
+                .sales(0)// 新增的商品，售卖的数量为0
                 .description(itemBo.getDescription())
                 .addTime(new Date())
                 .updateTime(new Date())
@@ -82,9 +81,14 @@ public class ItemServiceImpl implements ItemService {
         return itemVO;
     }
 
+    /**
+     * 获取商品列表
+     * @return
+     */
     @Override
-    public List<ItemBo> itemList() {
-        return null;
+    public List<ItemVO> itemList() {
+        List<ItemVO> itemVOList = itemMapper.selectAllItemInfo();
+        return itemVOList;
     }
 
     /**
@@ -93,19 +97,29 @@ public class ItemServiceImpl implements ItemService {
      * @return
      */
     @Override
-    public ItemBo getItemById(int id) {
+    public ItemVO getItemById(Integer id) {
         ItemPO itemPO = itemMapper.selectOne(new QueryWrapper<ItemPO>().eq("id", id));
         ItemStockPO itemStockPO = itemStockMapper.selectOne(new QueryWrapper<ItemStockPO>().eq("id", id));
-        // 组装为业务层的model
-        ItemBo itemBo = ItemBo.builder()
-                .id(id)
+        // 组装为视图层VO
+        ItemVO itemVO = ItemVO.builder()
+                .title(itemPO.getTitle())
                 .description(itemPO.getDescription())
                 .imgUrl(itemPO.getImgUrl())
                 .price(new BigDecimal(itemPO.getPrice()))
                 .sales(itemPO.getSales())
-                .title(itemPO.getTitle())
                 .stock(itemStockPO.getStock())
                 .build();
-        return itemBo;
+        return itemVO;
+    }
+
+    /**
+     * 减少库存
+     * @param itemId
+     * @param amount
+     * @return
+     */
+    @Override
+    public boolean decreaseStock(Integer itemId, Integer amount) {
+        return false;
     }
 }
