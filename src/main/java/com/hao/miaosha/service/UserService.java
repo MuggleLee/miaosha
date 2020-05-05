@@ -16,4 +16,11 @@ public interface UserService {
     void register(UserBO userBO) throws MyException;
 
     UserBO login(String telphone,String password) throws MyException, UnsupportedEncodingException, NoSuchAlgorithmException;
+
+    /**
+     * 通过Redis缓存获取用户信息
+     * @param userId
+     * @return
+     */
+    UserBO getUserByIdInCache(Integer userId) throws MyException;
 }

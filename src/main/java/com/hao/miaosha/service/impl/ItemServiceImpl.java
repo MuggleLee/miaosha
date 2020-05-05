@@ -2,20 +2,30 @@ package com.hao.miaosha.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hao.miaosha.bo.ItemBO;
+import com.hao.miaosha.bo.PromoBO;
+import com.hao.miaosha.exception.EmError;
 import com.hao.miaosha.exception.MyException;
 import com.hao.miaosha.mapper.ItemMapper;
 import com.hao.miaosha.mapper.ItemStockMapper;
 import com.hao.miaosha.po.ItemPO;
 import com.hao.miaosha.po.ItemStockPO;
+import com.hao.miaosha.po.PromoPO;
+import com.hao.miaosha.service.CacheService;
 import com.hao.miaosha.service.ItemService;
+import com.hao.miaosha.service.PromoService;
+import com.hao.miaosha.units.PromoStatus;
 import com.hao.miaosha.validator.ValidatorImpl;
 import com.hao.miaosha.vo.ItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Muggle Lee
@@ -32,6 +42,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private ValidatorImpl validator;
+
+    @Autowired
+    private PromoService promoService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 添加商品
@@ -83,6 +99,7 @@ public class ItemServiceImpl implements ItemService {
 
     /**
      * 获取商品列表
+     *
      * @return
      */
     @Override
@@ -93,15 +110,19 @@ public class ItemServiceImpl implements ItemService {
 
     /**
      * 通过商品id获取商品详细信息
+     *
      * @param id 商品id
      * @return
      */
     @Override
-    public ItemVO getItemById(Integer id) {
+    public ItemBO getItemById(Integer id) throws MyException {
         ItemPO itemPO = itemMapper.selectOne(new QueryWrapper<ItemPO>().eq("id", id));
         ItemStockPO itemStockPO = itemStockMapper.selectOne(new QueryWrapper<ItemStockPO>().eq("id", id));
-        // 组装为视图层VO
-        ItemVO itemVO = ItemVO.builder()
+        if (StringUtils.isEmpty(itemPO)) {
+            throw new MyException(EmError.PARAMETER_VALIDATION_ERROR, "商品Id异常");
+        }
+        ItemBO itemBO = ItemBO.builder()
+                .id(itemPO.getId())
                 .title(itemPO.getTitle())
                 .description(itemPO.getDescription())
                 .imgUrl(itemPO.getImgUrl())
@@ -109,17 +130,48 @@ public class ItemServiceImpl implements ItemService {
                 .sales(itemPO.getSales())
                 .stock(itemStockPO.getStock())
                 .build();
-        return itemVO;
+        PromoBO promoBO = promoService.getPromoInfoByItemId(id);
+        // 如果商品秒杀信息为空，秒杀状态设为0，代表没有秒杀
+        if (!StringUtils.isEmpty(promoBO) && promoBO.getStatus() != 3) {
+            itemBO.setPromoBO(promoBO);
+        }
+        return itemBO;
     }
 
     /**
      * 减少库存
+     *
      * @param itemId
      * @param amount
      * @return
      */
     @Override
+    @Transactional
     public boolean decreaseStock(Integer itemId, Integer amount) {
-        return false;
+        int affectRow = itemStockMapper.updateStockAmountByItemId(itemId, amount);
+        if (affectRow < 1) {
+            return false;
+        }
+        return true;
     }
+
+    /**
+     * 从Redis缓存中获取商品信息
+     * @param itemId
+     * @return
+     * @throws MyException
+     */
+    @Override
+    public ItemBO getItemByIdInCache(Integer itemId) throws MyException {
+        String key = "item_validate_" + itemId;
+        ItemBO itemBO = (ItemBO) redisTemplate.opsForValue().get(key);
+        if(StringUtils.isEmpty(itemBO)){
+            itemBO = this.getItemById(itemId);
+            redisTemplate.opsForValue().set(key,itemBO);
+            // 设置10分钟过期
+            redisTemplate.expire(key,10,TimeUnit.MINUTES);
+        }
+        return itemBO;
+    }
+
 }

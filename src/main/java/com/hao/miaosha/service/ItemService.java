@@ -1,6 +1,7 @@
 package com.hao.miaosha.service;
 
 import com.hao.miaosha.bo.ItemBO;
+import com.hao.miaosha.bo.UserBO;
 import com.hao.miaosha.exception.MyException;
 import com.hao.miaosha.vo.ItemVO;
 
@@ -18,8 +19,11 @@ public interface ItemService {
     List<ItemVO> itemList();
 
     // 返回商品详情
-    ItemVO getItemById(Integer id);
+    ItemBO getItemById(Integer id) throws MyException;
 
     // 减库存
     boolean decreaseStock(Integer itemId,Integer amount);
+
+    // 从Redis缓存中获取商品信息
+    ItemBO getItemByIdInCache(Integer itemId) throws MyException;
 }

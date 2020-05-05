@@ -18,9 +18,9 @@ public class PromoPO {
 
     private String promoName;
 
-    private Date startDate;
+    private Date startTime;
 
-    private Date endDate;
+    private Date endTime;
 
     private Integer itemId;
 

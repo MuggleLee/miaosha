@@ -13,6 +13,7 @@ import com.hao.miaosha.units.ConvertBean;
 import com.hao.miaosha.units.MD5Unit;
 import com.hao.miaosha.validator.ValidatorImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author MuggleLee
@@ -37,6 +39,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ValidatorImpl validator;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public UserBO getByUserId(int userId) throws MyException {
@@ -118,6 +123,24 @@ public class UserServiceImpl implements UserService {
                     .build();
             return userBO;
         }
+    }
+
+    /**
+     * 通过Redis缓存获取用户信息
+     * @param userId
+     * @return
+     */
+    @Override
+    public UserBO getUserByIdInCache(Integer userId) throws MyException {
+        String key = "user_validate_" + userId;
+        UserBO userBO = (UserBO) redisTemplate.opsForValue().get(key);
+        if(StringUtils.isEmpty(userBO)){
+            userBO = this.getByUserId(userId);
+            redisTemplate.opsForValue().set(key,userBO);
+            // 设置过期时间为1小时
+            redisTemplate.expire(key,1,TimeUnit.HOURS);
+        }
+        return userBO;
     }
 
 }
